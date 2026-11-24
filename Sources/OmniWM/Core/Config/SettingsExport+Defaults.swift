@@ -145,7 +145,9 @@ extension SettingsExport.Dwindle {
             splitWidthMultiplier: 1.0,
             singleWindowFit: .fullScreen,
             useGlobalGaps: true,
-            moveToRootStable: true
+            moveToRootStable: true,
+            moveContainerLeavesGroup: false,
+            moveContainerCrossesMonitorAtEdge: false
         )
     }
 }

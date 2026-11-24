@@ -137,6 +137,8 @@ struct SettingsExport: Equatable {
         var singleWindowFit: SingleWindowFit
         var useGlobalGaps: Bool
         var moveToRootStable: Bool
+        var moveContainerLeavesGroup: Bool?
+        var moveContainerCrossesMonitorAtEdge: Bool?
     }
 
     struct Overview: Codable, Equatable {

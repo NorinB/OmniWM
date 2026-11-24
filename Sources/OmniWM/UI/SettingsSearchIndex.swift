@@ -146,6 +146,14 @@ enum SettingsSearchIndex {
         setting("Dwindle Layout", section: .layouts, tab: "dwindle", anchor: "Dwindle Layout"),
         setting("Smart Split", section: .layouts, tab: "dwindle", anchor: "Smart Split"),
         setting("Move to Root: Stable", section: .layouts, tab: "dwindle", anchor: "Move to Root: Stable"),
+        setting(
+            "Move Container: Leave Group", section: .layouts, tab: "dwindle",
+            anchor: "Move Container: Leave Group"
+        ),
+        setting(
+            "Move Container: Cross Monitors at Edge", section: .layouts, tab: "dwindle",
+            anchor: "Move Container: Cross Monitors at Edge"
+        ),
         setting("Default Split Ratio", section: .layouts, tab: "dwindle", anchor: "Default Split Ratio"),
         setting("Split Width Multiplier", section: .layouts, tab: "dwindle", anchor: "Split Width Multiplier"),
         setting("Single Window", section: .layouts, tab: "dwindle", anchor: "Dwindle Layout"),

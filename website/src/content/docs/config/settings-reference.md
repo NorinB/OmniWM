@@ -196,6 +196,8 @@ Options for the Dwindle (BSP) layout.
 | `singleWindowFit` | string | `"fill"` | Size of a lone window: `fill` (the "Full Screen" fit, which uses the fullscreen layout frame and honors `fullscreenUsesOuterGaps`) or `WIDTHxHEIGHT` (no span mode in Dwindle). |
 | `useGlobalGaps` | boolean | `true` | Uses the [`gaps`](#gaps) values; when `false`, the inner gap comes from a per-monitor `innerGap` override (falling back to `gaps.size`), clamped to the same 0–64 range as `gaps.size`. |
 | `moveToRootStable` | boolean | `true` | Keeps a window on the same screen side when moving it to the root. |
+| `moveContainerLeavesGroup` *(optional)* | boolean | `false` | **Unreleased:** Available when building from `main`. When the focused window is in a tab group, Move Container takes it out of the group in that direction instead of moving the whole group. Windows outside a group still swap with their neighbour. |
+| `moveContainerCrossesMonitorAtEdge` *(optional)* | boolean | `false` | **Unreleased:** Available when building from `main`. At a workspace edge, Move Container sends the focused window to the adjacent routed display and follows it. Only the focused window moves, even when it is in a tab group, and only while it is a standard tiled window. |
 
 ## borders
 

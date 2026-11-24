@@ -41,6 +41,14 @@ final class DwindlePreferences {
         didSet { onChange?() }
     }
 
+    var moveContainerLeavesGroup = DwindlePreferences.defaults.moveContainerLeavesGroup ?? false {
+        didSet { onChange?() }
+    }
+
+    var moveContainerCrossesMonitorAtEdge = DwindlePreferences.defaults.moveContainerCrossesMonitorAtEdge ?? false {
+        didSet { onChange?() }
+    }
+
     var monitorOverrides: [MonitorDwindleSettings] = [] {
         didSet { onChange?() }
     }
@@ -52,7 +60,9 @@ final class DwindlePreferences {
             splitWidthMultiplier: splitWidthMultiplier,
             singleWindowFit: singleWindowFit,
             useGlobalGaps: useGlobalGaps,
-            moveToRootStable: moveToRootStable
+            moveToRootStable: moveToRootStable,
+            moveContainerLeavesGroup: moveContainerLeavesGroup,
+            moveContainerCrossesMonitorAtEdge: moveContainerCrossesMonitorAtEdge
         )
     }
 
@@ -63,6 +73,10 @@ final class DwindlePreferences {
         singleWindowFit = dwindle.singleWindowFit
         useGlobalGaps = dwindle.useGlobalGaps
         moveToRootStable = dwindle.moveToRootStable
+        moveContainerLeavesGroup = dwindle.moveContainerLeavesGroup
+            ?? DwindlePreferences.defaults.moveContainerLeavesGroup ?? false
+        moveContainerCrossesMonitorAtEdge = dwindle.moveContainerCrossesMonitorAtEdge
+            ?? DwindlePreferences.defaults.moveContainerCrossesMonitorAtEdge ?? false
     }
 
     func settings(for monitor: Monitor) -> MonitorDwindleSettings? {

@@ -217,7 +217,7 @@ extension IPCAutomationManifest {
         ),
         .init(
             name: .column(.move),
-            summary: "Move a Niri column horizontally or a complete Dwindle tile/group without monitor fallback.",
+            summary: "Move a Niri column horizontally or a complete Dwindle tile/group, staying on its monitor by default.",
             arguments: [.direction]
         ),
         .init(

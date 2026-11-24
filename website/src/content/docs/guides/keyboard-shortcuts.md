@@ -195,12 +195,12 @@ Dwindle groups use the existing Focus and Move bindings, so there are no separat
 | Select the next / previous tab | `Option + Down / Up Arrow` | Within a group, Down advances and Up goes back. At the group edge OmniWM tries a spatial tile, then the configured monitor transition, and wraps locally only when neither exit succeeds. |
 | Join a singleton into a tile or group | `Option + Shift + Arrow Keys` | Joins the focused singleton with the touching tile in that direction. |
 | Extract the active tab | `Option + Shift + Arrow Keys` | When the focused tile is grouped, extracts only its active tab onto the requested side. |
-| Move the complete tile or group | `Control + Option + Shift + Left / Right Arrow` | `Move Container` swaps the whole structure. Up / Down are advanced, unassigned Dwindle actions. |
+| Move the complete tile or group | `Control + Option + Shift + Left / Right Arrow` | `Move Container` swaps the whole structure. Up / Down are advanced, unassigned Dwindle actions. The Dwindle settings `moveContainerLeavesGroup` and `moveContainerCrossesMonitorAtEdge` let it take a window out of its group and continue onto the adjacent display. |
 | Select an exact tab | Click its tab rail item | Reveals and focuses that member without changing the group order. |
 
 Moving a tab directly from one existing group into another is intentionally a two-step operation: extract it first, then move the resulting singleton toward the destination group. A singleton at a genuine workspace edge can still use the normal cross-monitor Move behavior; a rejected group mutation does not fall through to tile swapping or monitor movement.
 
-The unassigned advanced actions are available in Settings > Keyboard Shortcuts. `Focus Next / Previous Window (Wrap)` always wraps within the active Niri column or Dwindle group. `Move Window to Previous / Next Position` changes the active member's position by one without wrapping. `Move Container` is the whole-structure escape hatch and never transfers to another monitor at a workspace edge. Dwindle join/extract and Move Container operations are intentionally unavailable while Overview is open; leave Overview before changing a Dwindle tree.
+The unassigned advanced actions are available in Settings > Keyboard Shortcuts. `Focus Next / Previous Window (Wrap)` always wraps within the active Niri column or Dwindle group. `Move Window to Previous / Next Position` changes the active member's position by one without wrapping. `Move Container` moves the whole structure and stays on its display at a workspace edge, unless the Dwindle settings `moveContainerLeavesGroup` or `moveContainerCrossesMonitorAtEdge` change that. Dwindle join/extract and Move Container operations are intentionally unavailable while Overview is open; leave Overview before changing a Dwindle tree.
 
 ## Quake Terminal (Inside Terminal)
 

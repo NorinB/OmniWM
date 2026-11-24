@@ -80,7 +80,7 @@ final class CommandHandler {
         case let .monitorFocus(action): return perform(action, controller: controller)
         case let .fullscreen(action): return perform(action, controller: controller)
         case let .moveColumn(direction):
-            moveContainer(direction: direction)
+            moveContainer(direction: direction, controller: controller)
         case let .sizing(action): return perform(action, controller: controller)
         case let .dwindle(action): return perform(action, controller: controller)
         case .openCommandPalette:
@@ -179,13 +179,16 @@ final class CommandHandler {
         }
     }
 
-    private func moveContainer(direction: Direction) {
+    private func moveContainer(direction: Direction, controller: WMController) {
         switch currentLayoutType() {
         case .dwindle:
-            _ = controller?.dwindleLayoutHandler.swapWindow(direction: direction)
+            let outcome = controller.dwindleLayoutHandler.moveContainer(direction: direction)
+            if outcome == .atWorkspaceEdge, controller.settings.dwindle.moveContainerCrossesMonitorAtEdge {
+                controller.workspaceNavigationHandler.moveWindowAcrossMonitorAtEdge(direction: direction)
+            }
         case .niri,
              .defaultLayout:
-            controller?.niriLayoutHandler.moveColumn(direction: direction)
+            controller.niriLayoutHandler.moveColumn(direction: direction)
         }
     }
 

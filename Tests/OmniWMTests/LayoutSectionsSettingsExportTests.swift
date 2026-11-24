@@ -45,7 +45,9 @@ final class LayoutSectionsSettingsExportTests: XCTestCase {
             "splitWidthMultiplier": .float(1),
             "singleWindowFit": .string("fill"),
             "useGlobalGaps": .boolean(true),
-            "moveToRootStable": .boolean(true)
+            "moveToRootStable": .boolean(true),
+            "moveContainerLeavesGroup": .boolean(false),
+            "moveContainerCrossesMonitorAtEdge": .boolean(false)
         ]))
         XCTAssertEqual(try SettingsTOMLCodec.decode(data), defaults)
     }
@@ -181,6 +183,46 @@ final class LayoutSectionsSettingsExportTests: XCTestCase {
             XCTAssertNil(result.migration, control.key)
             XCTAssertNil(result.export.niri[keyPath: control.export], control.key)
             settings.apply(result.export.niri, baseline: .defaults())
+            XCTAssertFalse(settings[keyPath: control.setting], control.key)
+        }
+    }
+
+    @MainActor
+    func testMoveContainerControlsDefaultOffRoundTripAndLoadWhenOmitted() throws {
+        let controls: [(
+            key: String,
+            export: WritableKeyPath<SettingsExport.Dwindle, Bool?>,
+            setting: ReferenceWritableKeyPath<DwindlePreferences, Bool>
+        )] = [
+            ("moveContainerLeavesGroup", \.moveContainerLeavesGroup, \.moveContainerLeavesGroup),
+            (
+                "moveContainerCrossesMonitorAtEdge",
+                \.moveContainerCrossesMonitorAtEdge,
+                \.moveContainerCrossesMonitorAtEdge
+            )
+        ]
+        let source = String(decoding: try SettingsTOMLCodec.encode(.defaults()), as: UTF8.self)
+        for control in controls {
+            XCTAssertEqual(SettingsExport.defaults().dwindle[keyPath: control.export], false, control.key)
+            XCTAssertFalse(DwindlePreferences(gaps: GapSettings())[keyPath: control.setting], control.key)
+
+            var export = SettingsExport.defaults()
+            export.dwindle[keyPath: control.export] = true
+            let encoded = try SettingsTOMLCodec.encode(export)
+            XCTAssertTrue(String(decoding: encoded, as: UTF8.self).contains("\(control.key) = true"), control.key)
+            XCTAssertEqual(try SettingsTOMLCodec.decode(encoded), export, control.key)
+            XCTAssertTrue(SettingsTOMLCodec.unknownKeyPaths(in: encoded).isEmpty, control.key)
+
+            let settings = DwindlePreferences(gaps: GapSettings())
+            settings.apply(export.dwindle)
+            XCTAssertTrue(settings[keyPath: control.setting], control.key)
+            XCTAssertEqual(settings.export()[keyPath: control.export], true, control.key)
+
+            let omitted = try removing(key: control.key, from: "dwindle", in: source)
+            let result = try SettingsTOMLCodec.decodeForLoad(Data(omitted.utf8))
+            XCTAssertNil(result.migration, control.key)
+            XCTAssertNil(result.export.dwindle[keyPath: control.export], control.key)
+            settings.apply(result.export.dwindle)
             XCTAssertFalse(settings[keyPath: control.setting], control.key)
         }
     }

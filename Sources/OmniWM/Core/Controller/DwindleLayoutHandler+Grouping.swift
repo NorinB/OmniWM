@@ -78,6 +78,36 @@ extension DwindleLayoutHandler {
         return outcome
     }
 
+    var activeWindowIsGrouped: Bool {
+        guard let controller,
+              let engine = controller.dwindleEngine,
+              let workspaceId = controller.activeWorkspace()?.id,
+              let token = engine.projectedActiveToken(in: workspaceId)
+        else { return false }
+        return engine.tileSnapshot(for: token, in: workspaceId)?.isGrouped == true
+    }
+
+    private var activeWindowCanLeaveWorkspace: Bool {
+        guard let controller,
+              let engine = controller.dwindleEngine,
+              let workspaceId = controller.activeWorkspace()?.id,
+              let token = engine.projectedActiveToken(in: workspaceId),
+              controller.workspaceManager.selectedManagedToken == token,
+              engine.tileCount(in: workspaceId) == 1 || engine.tileFrame(for: token, in: workspaceId) != nil
+        else { return false }
+        return groupMemberActivationIsAllowed(token, workspaceId: workspaceId)
+    }
+
+    func moveContainer(direction: Direction) -> WindowMoveOutcome {
+        guard let controller else { return .blocked }
+        if controller.settings.dwindle.moveContainerLeavesGroup, activeWindowIsGrouped {
+            return moveWindow(direction: direction)
+        }
+        let outcome = swapWindow(direction: direction)
+        guard outcome == .atWorkspaceEdge else { return outcome }
+        return activeWindowCanLeaveWorkspace ? .atWorkspaceEdge : .blocked
+    }
+
     @discardableResult
     func moveGroupMember(direction: Direction) -> Bool {
         var didMove = false

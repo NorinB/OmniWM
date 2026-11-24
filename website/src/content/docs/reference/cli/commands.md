@@ -99,7 +99,7 @@ omniwmctl command <command-path> [arguments...]
 
 `command move <direction>` follows the active layout's orientation and configured edge behavior, including optional monitor crossing. The explicit consume-or-expel commands use fixed Niri column order, never wrap or cross monitors, and cannot be assigned as shortcuts.
 
-In Dwindle, `focus left/right` remains spatial. `focus up/down` traverses a group's eligible tabs; at the group edge it tries a spatial neighbor, then the configured monitor transition, and wraps locally only when neither exit succeeds. `move <direction>` joins a singleton with the touching tile or extracts only the active member from a group onto that side. Moving between two existing groups is a two-step extract-then-join operation. Use `move-column <direction>` when the complete tile or group should move instead.
+In Dwindle, `focus left/right` remains spatial. `focus up/down` traverses a group's eligible tabs; at the group edge it tries a spatial neighbor, then the configured monitor transition, and wraps locally only when neither exit succeeds. `move <direction>` joins a singleton with the touching tile or extracts only the active member from a group onto that side. Moving between two existing groups is a two-step extract-then-join operation. Use `move-column <direction>` when the complete tile or group should move instead; with the Dwindle setting `moveContainerLeavesGroup` on, it also extracts the active member from a group.
 
 ### Workspace Switching
 
@@ -144,7 +144,7 @@ Workspace IDs are global, so `switch-workspace 3` targets workspace `3` wherever
 |---------|-----------|--------|-------------|
 | `command center-column` | — | niri | Center the focused Niri column without changing focus |
 | `command center-visible-columns` | — | niri | Center the current block of fully visible Niri columns in the viewport |
-| `command move-column` | `<left\|right\|up\|down>` | shared left/right; dwindle up/down | Move a Niri column horizontally or swap a complete Dwindle tile/group without monitor fallback |
+| `command move-column` | `<left\|right\|up\|down>` | shared left/right; dwindle up/down | Move a Niri column horizontally or swap a complete Dwindle tile/group. It stays on its monitor unless the Dwindle setting `moveContainerCrossesMonitorAtEdge` is on, and moves the whole group unless `moveContainerLeavesGroup` is on |
 | `command move-column-to-first` | — | niri | Move the focused Niri column to the first position |
 | `command move-column-to-last` | — | niri | Move the focused Niri column to the last position |
 | `command move-column-to-index` | `<number>` | niri | Move the focused Niri column to a one-based index |

@@ -61,6 +61,21 @@ private struct GlobalDwindleSettingsSection: View {
                 .id("Move to Root: Stable")
             SettingsCaption(localized: "Keep window on same screen side when moving to root")
 
+            Toggle("Move Container: Leave Group", isOn: Bindable(settings.dwindle).moveContainerLeavesGroup)
+                .id("Move Container: Leave Group")
+            SettingsCaption(
+                localized: "Move Container takes the focused window out of its tab group instead of moving the whole group"
+            )
+
+            Toggle(
+                "Move Container: Cross Monitors at Edge",
+                isOn: Bindable(settings.dwindle).moveContainerCrossesMonitorAtEdge
+            )
+            .id("Move Container: Cross Monitors at Edge")
+            SettingsCaption(
+                localized: "At a workspace edge, Move Container sends the focused window to the adjacent display and follows it"
+            )
+
             SettingsSliderRow(
                 label: String(localized: "Default Split Ratio"),
                 value: Bindable(settings.dwindle).defaultSplitRatio,

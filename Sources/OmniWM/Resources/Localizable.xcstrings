@@ -1,6 +1,18 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "At a workspace edge, Move Container sends the focused window to the adjacent display and follows it" : {
+
+    },
+    "Move Container takes the focused window out of its tab group instead of moving the whole group" : {
+
+    },
+    "Move Container: Cross Monitors at Edge" : {
+
+    },
+    "Move Container: Leave Group" : {
+
+    },
     "Apply to Every New Matching Window" : {
 
     },

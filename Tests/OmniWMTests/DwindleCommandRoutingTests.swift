@@ -304,6 +304,164 @@ final class DwindleCommandRoutingTests: XCTestCase {
         XCTAssertNil(fixture.controller.layoutRefreshController.layoutState.pendingRefresh)
     }
 
+    func testMoveContainerLeavesGroupBeforeCrossingMonitorsWhenEnabled() throws {
+        let fixture = try makeFixture(groupedSource: true, includeTargetCandidate: false)
+        fixture.controller.settings.dwindle.moveContainerLeavesGroup = true
+        fixture.controller.settings.dwindle.moveContainerCrossesMonitorAtEdge = true
+        let blocker = try blockLayoutRefresh(fixture)
+        defer { unblockLayoutRefresh(fixture.controller, blocker: blocker) }
+
+        XCTAssertTrue(fixture.controller.dwindleLayoutHandler.activeWindowIsGrouped)
+        XCTAssertEqual(
+            fixture.controller.commandHandler.performCommand(.moveColumn(.down)),
+            .executed
+        )
+
+        XCTAssertFalse(fixture.controller.dwindleLayoutHandler.activeWindowIsGrouped)
+        XCTAssertEqual(fixture.engine.tileCount(in: fixture.sourceWorkspaceId), 2)
+        XCTAssertEqual(
+            fixture.engine.tileSnapshot(
+                for: fixture.activeToken,
+                in: fixture.sourceWorkspaceId
+            )?.members.map(\.token),
+            [fixture.activeToken]
+        )
+        XCTAssertEqual(
+            fixture.engine.tileSnapshot(
+                for: fixture.firstToken,
+                in: fixture.sourceWorkspaceId
+            )?.members.map(\.token),
+            [fixture.firstToken]
+        )
+        XCTAssertEqual(
+            fixture.controller.workspaceManager.workspace(for: fixture.activeToken),
+            fixture.sourceWorkspaceId
+        )
+        XCTAssertEqual(
+            fixture.controller.workspaceManager.interactionMonitorId,
+            fixture.sourceMonitor.id
+        )
+    }
+
+    func testMoveContainerAtSingletonEdgeTransfersToAdjacentMonitorWhenEnabled() throws {
+        let fixture = try makeFixture(groupedSource: false, includeTargetCandidate: false)
+        fixture.controller.settings.dwindle.moveContainerCrossesMonitorAtEdge = true
+        fixture.controller.settings.focus.followsWindowToMonitor = false
+        let blocker = try blockLayoutRefresh(fixture)
+        defer { unblockLayoutRefresh(fixture.controller, blocker: blocker) }
+
+        XCTAssertEqual(
+            fixture.controller.commandHandler.performCommand(.moveColumn(.down)),
+            .executed
+        )
+
+        XCTAssertEqual(
+            fixture.controller.workspaceManager.workspace(for: fixture.activeToken),
+            fixture.targetWorkspaceId
+        )
+        XCTAssertEqual(
+            fixture.controller.workspaceManager.interactionMonitorId,
+            fixture.targetMonitor.id
+        )
+        XCTAssertNil(fixture.engine.findNode(for: fixture.activeToken, in: fixture.sourceWorkspaceId))
+        let pending = try XCTUnwrap(
+            fixture.controller.layoutRefreshController.layoutState.pendingRefresh
+        )
+        XCTAssertEqual(pending.reason, .workspaceTransition)
+        XCTAssertEqual(
+            pending.affectedWorkspaceIds,
+            [fixture.sourceWorkspaceId, fixture.targetWorkspaceId]
+        )
+    }
+
+    func testMoveContainerAtGroupEdgeTransfersOnlyTheFocusedWindowWhenEnabled() throws {
+        let fixture = try makeFixture(groupedSource: true, includeTargetCandidate: false)
+        fixture.controller.settings.dwindle.moveContainerCrossesMonitorAtEdge = true
+        fixture.controller.settings.focus.followsWindowToMonitor = false
+        let blocker = try blockLayoutRefresh(fixture)
+        defer { unblockLayoutRefresh(fixture.controller, blocker: blocker) }
+
+        XCTAssertEqual(
+            fixture.controller.commandHandler.performCommand(.moveColumn(.down)),
+            .executed
+        )
+
+        XCTAssertEqual(
+            fixture.controller.workspaceManager.workspace(for: fixture.activeToken),
+            fixture.targetWorkspaceId
+        )
+        XCTAssertEqual(
+            fixture.controller.workspaceManager.workspace(for: fixture.firstToken),
+            fixture.sourceWorkspaceId
+        )
+        XCTAssertNil(fixture.engine.findNode(for: fixture.activeToken, in: fixture.sourceWorkspaceId))
+        XCTAssertNotNil(fixture.engine.findNode(for: fixture.firstToken, in: fixture.sourceWorkspaceId))
+        XCTAssertEqual(
+            fixture.controller.workspaceManager.interactionMonitorId,
+            fixture.targetMonitor.id
+        )
+    }
+
+    func testEligibilityBlockedMoveContainerDoesNotLeaveGroupOrTransfer() throws {
+        let fixture = try makeFixture(groupedSource: true, includeTargetCandidate: false)
+        fixture.controller.settings.dwindle.moveContainerLeavesGroup = true
+        fixture.controller.settings.dwindle.moveContainerCrossesMonitorAtEdge = true
+        let before = try XCTUnwrap(
+            fixture.engine.tileSnapshot(for: fixture.activeToken, in: fixture.sourceWorkspaceId)
+        )
+        fixture.controller.workspaceManager.setLayoutReason(
+            .nativeFullscreen,
+            for: fixture.activeToken
+        )
+        let blocker = try blockLayoutRefresh(fixture)
+        defer { unblockLayoutRefresh(fixture.controller, blocker: blocker) }
+
+        XCTAssertEqual(
+            fixture.controller.commandHandler.performCommand(.moveColumn(.down)),
+            .executed
+        )
+
+        XCTAssertEqual(
+            fixture.controller.workspaceManager.workspace(for: fixture.activeToken),
+            fixture.sourceWorkspaceId
+        )
+        XCTAssertEqual(
+            fixture.controller.workspaceManager.interactionMonitorId,
+            fixture.sourceMonitor.id
+        )
+        XCTAssertEqual(
+            fixture.engine.tileSnapshot(for: fixture.activeToken, in: fixture.sourceWorkspaceId),
+            before
+        )
+        XCTAssertNil(fixture.controller.layoutRefreshController.layoutState.pendingRefresh)
+    }
+
+    func testEligibilityBlockedMoveContainerDoesNotTransferSingletonAtEdge() throws {
+        let fixture = try makeFixture(groupedSource: false, includeTargetCandidate: false)
+        fixture.controller.settings.dwindle.moveContainerCrossesMonitorAtEdge = true
+        fixture.controller.workspaceManager.setLayoutReason(
+            .nativeFullscreen,
+            for: fixture.activeToken
+        )
+        let blocker = try blockLayoutRefresh(fixture)
+        defer { unblockLayoutRefresh(fixture.controller, blocker: blocker) }
+
+        XCTAssertEqual(
+            fixture.controller.commandHandler.performCommand(.moveColumn(.down)),
+            .executed
+        )
+
+        XCTAssertEqual(
+            fixture.controller.workspaceManager.workspace(for: fixture.activeToken),
+            fixture.sourceWorkspaceId
+        )
+        XCTAssertEqual(
+            fixture.controller.workspaceManager.interactionMonitorId,
+            fixture.sourceMonitor.id
+        )
+        XCTAssertNotNil(fixture.engine.findNode(for: fixture.activeToken, in: fixture.sourceWorkspaceId))
+    }
+
     func testSharedCycleSizeCommandRoutesToDwindleSplitRatio() throws {
         let fixture = try makeFixture(groupedSource: false, includeTargetCandidate: false)
         let secondToken = addWindow(
